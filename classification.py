@@ -1,30 +1,12 @@
-import copy
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn
-from torch.autograd import Variable
 
-from nets.mobilenet import mobilenet_v2
-from nets.resnet50 import resnet50
-from nets.vgg16 import vgg16
-from utils.utils import letterbox_image
+from nets import get_model_from_name
+from utils.utils import (cvtColor, get_classes, letterbox_image,
+                         preprocess_input)
 
-get_model_from_name = {
-    "mobilenet":mobilenet_v2,
-    "resnet50":resnet50,
-    "vgg16":vgg16,
-}
-
-#----------------------------------------#
-#   预处理训练图片
-#----------------------------------------#
-def _preprocess_input(x,):
-    x /= 127.5
-    x -= 1.
-    return x
 
 #--------------------------------------------#
 #   使用自己训练好的模型预测需要修改3个参数
@@ -32,10 +14,27 @@ def _preprocess_input(x,):
 #--------------------------------------------#
 class Classification(object):
     _defaults = {
+        #--------------------------------------------------------------------------#
+        #   使用自己训练好的模型进行预测一定要修改model_path和classes_path！
+        #   model_path指向logs文件夹下的权值文件，classes_path指向model_data下的txt
+        #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
+        #--------------------------------------------------------------------------#
         "model_path"    : 'model_data/mobilenet_catvsdog.pth',
         "classes_path"  : 'model_data/cls_classes.txt',
-        "input_shape"   : [224,224,3],
+        #--------------------------------------------------------------------#
+        #   输入的图片大小
+        #--------------------------------------------------------------------#
+        "input_shape"   : [224, 224],
+        #--------------------------------------------------------------------#
+        #   所用模型种类：
+        #   mobilenet、resnet50、vgg16是常用的分类网络
+        #   cspdarknet53用于示例如何使用mini_imagenet训练自己的预训练权重
+        #--------------------------------------------------------------------#
         "backbone"      : 'mobilenet',
+        #-------------------------------#
+        #   是否使用Cuda
+        #   没有GPU可以设置成False
+        #-------------------------------#
         "cuda"          : True
     }
 
@@ -51,67 +50,69 @@ class Classification(object):
     #---------------------------------------------------#
     def __init__(self, **kwargs):
         self.__dict__.update(self._defaults)
-        self.class_names = self._get_class()
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+
+        #---------------------------------------------------#
+        #   获得种类
+        #---------------------------------------------------#
+        self.class_names, self.num_classes = get_classes(self.classes_path)
         self.generate()
 
     #---------------------------------------------------#
     #   获得所有的分类
     #---------------------------------------------------#
-    def _get_class(self):
-        classes_path = os.path.expanduser(self.classes_path)
-        with open(classes_path) as f:
-            class_names = f.readlines()
-        class_names = [c.strip() for c in class_names]
-        return class_names
-
-    #---------------------------------------------------#
-    #   获得所有的分类
-    #---------------------------------------------------#
     def generate(self):
-        model_path = os.path.expanduser(self.model_path)
+        #---------------------------------------------------#
+        #   载入模型与权值
+        #---------------------------------------------------#
+        self.model  = get_model_from_name[self.backbone](num_classes=self.num_classes, pretrained=False)
+        device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.load_state_dict(torch.load(self.model_path, map_location=device))
+        self.model  = self.model.eval()
+        print('{} model, and classes loaded.'.format(self.model_path))
 
-        # 计算总的种类
-        self.num_classes = len(self.class_names)
-
-        assert self.backbone in ["mobilenet", "resnet50", "vgg16"]
-
-        self.model = get_model_from_name[self.backbone](num_classes=self.num_classes, pretrained=False)
-
-        self.model = self.model.eval()
-        state_dict = torch.load(self.model_path)
-        self.model.load_state_dict(state_dict)
         if self.cuda:
             self.model = nn.DataParallel(self.model)
             self.model = self.model.cuda()
-        print('{} model, and classes loaded.'.format(model_path))
 
     #---------------------------------------------------#
     #   检测图片
     #---------------------------------------------------#
     def detect_image(self, image):
-        old_image = copy.deepcopy(image)
-        
-        crop_img = letterbox_image(image, [self.input_shape[0],self.input_shape[1]])
-        photo = np.array(crop_img,dtype = np.float32)
-
-        # 图片预处理，归一化
-        photo = np.reshape(_preprocess_input(photo),[1,self.input_shape[0],self.input_shape[1],self.input_shape[2]])
-        photo = np.transpose(photo,(0,3,1,2))
+        #---------------------------------------------------------#
+        #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
+        #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
+        #---------------------------------------------------------#
+        image       = cvtColor(image)
+        #---------------------------------------------------#
+        #   对图片进行不失真的resize
+        #---------------------------------------------------#
+        image_data  = letterbox_image(image, [self.input_shape[1], self.input_shape[0]])
+        #---------------------------------------------------------#
+        #   归一化+添加上batch_size维度+转置
+        #---------------------------------------------------------#
+        image_data  = np.transpose(np.expand_dims(preprocess_input(np.array(image_data, np.float32)), 0), (0, 3, 1, 2))
 
         with torch.no_grad():
-            photo = Variable(torch.from_numpy(photo).type(torch.FloatTensor))
+            photo   = torch.from_numpy(image_data)
             if self.cuda:
                 photo = photo.cuda()
-            preds = torch.softmax(self.model(photo)[0], dim=-1).cpu().numpy()
-
-        class_name = self.class_names[np.argmax(preds)]
+            #---------------------------------------------------#
+            #   图片传入网络进行预测
+            #---------------------------------------------------#
+            preds   = torch.softmax(self.model(photo)[0], dim=-1).cpu().numpy()
+        #---------------------------------------------------#
+        #   获得所属种类
+        #---------------------------------------------------#
+        class_name  = self.class_names[np.argmax(preds)]
         probability = np.max(preds)
 
+        #---------------------------------------------------#
+        #   绘图并写字
+        #---------------------------------------------------#
         plt.subplot(1, 1, 1)
-        plt.imshow(np.array(old_image))
+        plt.imshow(np.array(image))
         plt.title('Class:%s Probability:%.3f' %(class_name, probability))
         plt.show()
         return class_name
-
-    def close_session(self):
-        self.sess.close()
