@@ -58,10 +58,27 @@ img/cat.jpg
 2. 在classification.py文件里面，在如下部分修改model_path、classes_path、backbone和alpha使其对应训练好的文件；**model_path对应logs文件夹下面的权值文件，classes_path是model_path对应分的类，backbone对应使用的主干特征提取网络，alpha是当使用mobilenet的alpha值**。  
 ```python
 _defaults = {
+    #--------------------------------------------------------------------------#
+    #   使用自己训练好的模型进行预测一定要修改model_path和classes_path！
+    #   model_path指向logs文件夹下的权值文件，classes_path指向model_data下的txt
+    #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
+    #--------------------------------------------------------------------------#
     "model_path"    : 'model_data/mobilenet_catvsdog.pth',
     "classes_path"  : 'model_data/cls_classes.txt',
-    "input_shape"   : [224,224,3],
+    #--------------------------------------------------------------------#
+    #   输入的图片大小
+    #--------------------------------------------------------------------#
+    "input_shape"   : [224, 224],
+    #--------------------------------------------------------------------#
+    #   所用模型种类：
+    #   mobilenet、resnet50、vgg16是常用的分类网络
+    #   cspdarknet53用于示例如何使用mini_imagenet训练自己的预训练权重
+    #--------------------------------------------------------------------#
     "backbone"      : 'mobilenet',
+    #-------------------------------#
+    #   是否使用Cuda
+    #   没有GPU可以设置成False
+    #-------------------------------#
     "cuda"          : True
 }
 ```
@@ -96,10 +113,27 @@ img/cat.jpg
 4. 之后在classification.py文件里面修改如下部分model_path、classes_path、backbone和alpha使其对应训练好的文件；**model_path对应logs文件夹下面的权值文件，classes_path是model_path对应分的类，backbone对应使用的主干特征提取网络，alpha是当使用mobilenet的alpha值**。  
 ```python
 _defaults = {
+    #--------------------------------------------------------------------------#
+    #   使用自己训练好的模型进行预测一定要修改model_path和classes_path！
+    #   model_path指向logs文件夹下的权值文件，classes_path指向model_data下的txt
+    #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
+    #--------------------------------------------------------------------------#
     "model_path"    : 'model_data/mobilenet_catvsdog.pth',
     "classes_path"  : 'model_data/cls_classes.txt',
-    "input_shape"   : [224,224,3],
+    #--------------------------------------------------------------------#
+    #   输入的图片大小
+    #--------------------------------------------------------------------#
+    "input_shape"   : [224, 224],
+    #--------------------------------------------------------------------#
+    #   所用模型种类：
+    #   mobilenet、resnet50、vgg16是常用的分类网络
+    #   cspdarknet53用于示例如何使用mini_imagenet训练自己的预训练权重
+    #--------------------------------------------------------------------#
     "backbone"      : 'mobilenet',
+    #-------------------------------#
+    #   是否使用Cuda
+    #   没有GPU可以设置成False
+    #-------------------------------#
     "cuda"          : True
 }
 ```
