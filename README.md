@@ -4,8 +4,8 @@
 ### 目录
 1. [所需环境 Environment](#所需环境)
 2. [文件下载 Download](#文件下载)
-3. [预测步骤 How2predict](#预测步骤)
-4. [训练步骤 How2train](#训练步骤)
+3. [训练步骤 How2train](#训练步骤)
+4. [预测步骤 How2predict](#预测步骤)
 5. [评估步骤 How2eval](#评估步骤)
 6. [参考资料 Reference](#Reference)
 
