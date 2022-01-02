@@ -14,12 +14,12 @@ pytorch == 1.2.0
 
 ### 文件下载
 训练所需的预训练权重都可以在百度云下载。     
-链接: https://pan.baidu.com/s/1KwH-O7EafSpfPXnCyX_DVw    
-提取码: 2g5y  
+链接: https://pan.baidu.com/s/1Jxeyeni45PvGDuPNdhAjCw    
+提取码: uyke    
 
 训练所用的示例猫狗数据集也可以在百度云下载。   
-链接: https://pan.baidu.com/s/1Jz1nafsrRcw2Hqso4c8i0g    
-提取码: hmmx   
+链接: https://pan.baidu.com/s/1hYBNG0TnGIeWw1-SwkzqpA     
+提取码: ass8    
 
 ### 训练步骤
 1. datasets文件夹下存放的图片分为两部分，train里面是训练图片，test里面是测试图片。  
