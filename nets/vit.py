@@ -132,9 +132,8 @@ class VisionTransformer(nn.Module):
         #   224, 224, 3 -> 196, 768
         #-----------------------------------------------#
         self.patch_embed    = PatchEmbed(input_shape=input_shape, patch_size=patch_size, in_chans=in_chans, num_features=num_features)
-        num_patches         = self.patch_embed.num_patches
+        num_patches         = (224 // patch_size) * (224 // patch_size)
         self.num_features   = num_features
-        
         self.new_feature_shape = [int(input_shape[0] // patch_size), int(input_shape[1] // patch_size)]
         self.old_feature_shape = [int(224 // patch_size), int(224 // patch_size)]
 
