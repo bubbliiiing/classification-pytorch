@@ -27,7 +27,10 @@ if __name__ == "__main__":
     input_shape     = [224, 224]
     #----------------------------------------------------#
     #   所用模型种类：
-    #   mobilenet、resnet50、vgg16是常用的分类网络
+    #   mobilenet、resnet50、vgg16、vit
+    #
+    #   在使用vit时学习率需要设置的小一些，否则不收敛
+    #   可以将最下方的两个lr分别设置成1e-4、1e-5
     #----------------------------------------------------#
     backbone        = "mobilenet"
     #----------------------------------------------------------------------------------------------------------------------------#
@@ -76,7 +79,11 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     class_names, num_classes = get_classes(classes_path)
 
-    model = get_model_from_name[backbone](num_classes = num_classes, pretrained = pretrained)
+    if backbone != "vit":
+        model = get_model_from_name[backbone](num_classes = num_classes, pretrained = pretrained)
+    else:
+        model = get_model_from_name[backbone](input_shape = input_shape, num_classes = num_classes, pretrained = pretrained)
+
     if not pretrained:
         weights_init(model)
     if model_path != "":

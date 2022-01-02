@@ -27,8 +27,7 @@ class Classification(object):
         "input_shape"   : [224, 224],
         #--------------------------------------------------------------------#
         #   所用模型种类：
-        #   mobilenet、resnet50、vgg16是常用的分类网络
-        #   cspdarknet53用于示例如何使用mini_imagenet训练自己的预训练权重
+        #   mobilenet、resnet50、vgg16、vit
         #--------------------------------------------------------------------#
         "backbone"      : 'mobilenet',
         #-------------------------------#
@@ -66,7 +65,10 @@ class Classification(object):
         #---------------------------------------------------#
         #   载入模型与权值
         #---------------------------------------------------#
-        self.model  = get_model_from_name[self.backbone](num_classes=self.num_classes, pretrained=False)
+        if self.backbone != "vit":
+            self.model  = get_model_from_name[self.backbone](num_classes = self.num_classes, pretrained = False)
+        else:
+            self.model  = get_model_from_name[self.backbone](input_shape = self.input_shape, num_classes = self.num_classes, pretrained = False)
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.load_state_dict(torch.load(self.model_path, map_location=device))
         self.model  = self.model.eval()
