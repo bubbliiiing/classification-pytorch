@@ -101,7 +101,7 @@ if __name__ == "__main__":
     #                   默认先冻结主干训练后解冻训练。
     #                   如果设置Freeze_Train=False，建议使用优化器为sgd
     #------------------------------------------------------------------#
-    Freeze_Train        = False
+    Freeze_Train        = True
     
     #------------------------------------------------------------------#
     #   其它训练参数：学习率、优化器、学习率下降有关
@@ -237,9 +237,9 @@ if __name__ == "__main__":
 
         train_dataset   = DataGenerator(train_lines, input_shape, True)
         val_dataset     = DataGenerator(val_lines, input_shape, False)
-        gen             = DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
+        gen             = DataLoader(train_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True, 
                                 drop_last=True, collate_fn=detection_collate)
-        gen_val         = DataLoader(val_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
+        gen_val         = DataLoader(val_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
         #---------------------------------------#
         #   开始模型训练
@@ -271,9 +271,9 @@ if __name__ == "__main__":
                 if epoch_step == 0 or epoch_step_val == 0:
                     raise ValueError("数据集过小，无法继续进行训练，请扩充数据集。")
 
-                gen             = DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
+                gen             = DataLoader(train_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
                                         drop_last=True, collate_fn=detection_collate)
-                gen_val         = DataLoader(val_dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
+                gen_val         = DataLoader(val_dataset, shuffle=True, batch_size=batch_size, num_workers=num_workers, pin_memory=True,
                                         drop_last=True, collate_fn=detection_collate)
 
                 UnFreeze_flag = True
