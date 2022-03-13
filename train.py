@@ -187,6 +187,9 @@ if __name__ == "__main__":
         val_lines   = f.readlines()
     num_train   = len(train_lines)
     num_val     = len(val_lines)
+    np.random.seed(10101)
+    np.random.shuffle(train_lines)
+    np.random.seed(None)
 
     #------------------------------------------------------#
     #   主干特征提取网络特征通用，冻结训练可以加快训练速度
