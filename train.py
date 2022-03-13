@@ -150,9 +150,9 @@ if __name__ == "__main__":
 
         train_dataset   = DataGenerator(lines[:num_train], input_shape, True)
         val_dataset     = DataGenerator(lines[num_train:], input_shape, False)
-        gen             = DataLoader(train_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
+        gen             = DataLoader(train_dataset, shuffle=True, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
-        gen_val         = DataLoader(val_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
+        gen_val         = DataLoader(val_dataset, shuffle=True, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
         #------------------------------------#
         #   冻结一定部分训练
@@ -186,9 +186,9 @@ if __name__ == "__main__":
 
         train_dataset   = DataGenerator(lines[:num_train], input_shape, True)
         val_dataset     = DataGenerator(lines[num_train:], input_shape, False)
-        gen             = DataLoader(train_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
+        gen             = DataLoader(train_dataset, shuffle=True, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
-        gen_val         = DataLoader(val_dataset, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
+        gen_val         = DataLoader(val_dataset, shuffle=True, batch_size=Batch_size, num_workers=num_workers, pin_memory=True,
                                 drop_last=True, collate_fn=detection_collate)
         #------------------------------------#
         #   解冻后训练
