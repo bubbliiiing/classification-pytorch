@@ -60,8 +60,8 @@ class DataGenerator(data.Dataset):
         #------------------------------------------#
         #   对图像进行缩放并且进行长和宽的扭曲
         #------------------------------------------#
-        new_ar = w/h * self.rand(1-jitter,1+jitter)/self.rand(1-jitter,1+jitter)
-        scale = self.rand(.75, 1.25)
+        new_ar = iw/ih * self.rand(1-jitter,1+jitter) / self.rand(1-jitter,1+jitter)
+        scale = self.rand(.75, 1.5)
         if new_ar < 1:
             nh = int(scale*h)
             nw = int(nh*new_ar)
@@ -90,21 +90,29 @@ class DataGenerator(data.Dataset):
             angle = np.random.randint(-15,15)
             a,b = w/2,h/2
             M = cv2.getRotationMatrix2D((a,b),angle,1)
-            image = cv2.warpAffine(np.array(image), M, (w,h), borderValue=[128,128,128]) 
+            image = cv2.warpAffine(np.array(image), M, (w,h), borderValue=[128, 128, 128]) 
 
-        #------------------------------------------#
-        #   色域扭曲
-        #------------------------------------------#
-        hue = self.rand(-hue, hue)
-        sat = self.rand(1, sat) if self.rand()<.5 else 1/self.rand(1, sat)
-        val = self.rand(1, val) if self.rand()<.5 else 1/self.rand(1, val)
-        x = cv2.cvtColor(np.array(image,np.float32)/255, cv2.COLOR_RGB2HSV)
-        x[..., 1] *= sat
-        x[..., 2] *= val
-        x[x[:,:, 0]>360, 0] = 360
-        x[:, :, 1:][x[:, :, 1:]>1] = 1
-        x[x<0] = 0
-        image_data = cv2.cvtColor(x, cv2.COLOR_HSV2RGB)*255
+        image_data      = np.array(image, np.uint8)
+        #---------------------------------#
+        #   对图像进行色域变换
+        #   计算色域变换的参数
+        #---------------------------------#
+        r               = np.random.uniform(-1, 1, 3) * [hue, sat, val] + 1
+        #---------------------------------#
+        #   将图像转到HSV上
+        #---------------------------------#
+        hue, sat, val   = cv2.split(cv2.cvtColor(image_data, cv2.COLOR_RGB2HSV))
+        dtype           = image_data.dtype
+        #---------------------------------#
+        #   应用变换
+        #---------------------------------#
+        x       = np.arange(0, 256, dtype=r.dtype)
+        lut_hue = ((x * r[0]) % 180).astype(dtype)
+        lut_sat = np.clip(x * r[1], 0, 255).astype(dtype)
+        lut_val = np.clip(x * r[2], 0, 255).astype(dtype)
+
+        image_data = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
+        image_data = cv2.cvtColor(image_data, cv2.COLOR_HSV2RGB)
         return image_data
 
 def detection_collate(batch):
