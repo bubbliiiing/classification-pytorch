@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import torch
 
@@ -42,8 +44,10 @@ class Eval_Classification(Classification):
 
         return preds
 
-    
 if __name__ == "__main__":
+    if not os.path.exists(metrics_out_path):
+        os.makedirs(metrics_out_path)
+            
     classfication = Eval_Classification()
     
     with open("./cls_test.txt","r") as f:
