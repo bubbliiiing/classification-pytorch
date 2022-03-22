@@ -2,12 +2,19 @@
 ---
 
 ### 目录
-1. [所需环境 Environment](#所需环境)
-2. [文件下载 Download](#文件下载)
-3. [训练步骤 How2train](#训练步骤)
-4. [预测步骤 How2predict](#预测步骤)
-5. [评估步骤 How2eval](#评估步骤)
-6. [参考资料 Reference](#Reference)
+1. [仓库更新 Top News](#仓库更新)
+2. [所需环境 Environment](#所需环境)
+3. [文件下载 Download](#文件下载)
+4. [训练步骤 How2train](#训练步骤)
+5. [预测步骤 How2predict](#预测步骤)
+6. [评估步骤 How2eval](#评估步骤)
+7. [参考资料 Reference](#Reference)
+
+## Top News
+**`2022-03`**:**进行了大幅度的更新，支持step、cos学习率下降法、支持adam、sgd优化器选择、支持学习率根据batch_size自适应调整。**  
+BiliBili视频中的原仓库地址为：https://github.com/bubbliiiing/classification-keras/tree/bilibili
+
+**`2021-01`**:**仓库创建，支持模型训练，大量的注释，多个可调整参数。支持top1-top5的准确度评价。**   
 
 ### 所需环境
 pytorch == 1.2.0
