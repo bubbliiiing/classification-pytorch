@@ -5,37 +5,36 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-def evaluteTop5(classfication, lines):
-    correct = 0
+def evaluteTop1_5(classfication, lines, metrics_out_path):
+    correct_1 = 0
+    correct_5 = 0
+    preds   = []
+    labels  = []
     total = len(lines)
     for index, line in enumerate(lines):
         annotation_path = line.split(';')[1].split()[0]
         x = Image.open(annotation_path)
         y = int(line.split(';')[0])
 
-        pred = classfication.detect_image(x)
-        pred = np.argsort(pred)[::-1]
-        pred = pred[:5]
+        pred        = classfication.detect_image(x)
+        pred_1      = np.argmax(pred)
+        correct_1   += pred_1 == y
         
-        correct += y in pred
+        pred_5      = np.argsort(pred)[::-1]
+        pred_5      = pred_5[:5]
+        correct_5   += y in pred_5
+        
+        preds.append(pred_1)
+        labels.append(y)
         if index % 100 == 0:
-            print("[%d/%d]"%(index,total))
-    return correct / total
-
-def evaluteTop1(classfication, lines):
-    correct = 0
-    total = len(lines)
-    for index, line in enumerate(lines):
-        annotation_path = line.split(';')[1].split()[0]
-        x = Image.open(annotation_path)
-        y = int(line.split(';')[0])
-
-        pred = classfication.detect_image(x)
-        pred = np.argmax(pred)
-        correct += pred == y
-        if index % 100 == 0:
-            print("[%d/%d]"%(index,total))
-    return correct / total
+            print("[%d/%d]"%(index, total))
+            
+    hist        = fast_hist(np.array(labels), np.array(preds), len(classfication.class_names))
+    Recall      = per_class_Recall(hist)
+    Precision   = per_class_Precision(hist)
+    
+    show_results(metrics_out_path, hist, Recall, Precision, classfication.class_names)
+    return correct_1 / total, correct_5 / total, Recall, Precision
 
 def fast_hist(a, b, n):
     k = (a >= 0) & (a < n)

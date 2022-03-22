@@ -1,11 +1,10 @@
 import numpy as np
 import torch
-from PIL import Image
 
 from classification import (Classification, cvtColor, letterbox_image,
                             preprocess_input)
 from utils.utils import letterbox_image
-from utils.utils_metrics import evaluteTop1, evaluteTop5
+from utils.utils_metrics import evaluteTop1_5
 
 #------------------------------------------------------#
 #   test_annotation_path    测试图片路径和标签
@@ -14,7 +13,7 @@ test_annotation_path    = 'cls_test.txt'
 #------------------------------------------------------#
 #   metrics_out_path        指标保存的文件夹
 #------------------------------------------------------#
-metrics_out_path        = "miou_out"
+metrics_out_path        = "metrics_out"
 
 class Eval_Classification(Classification):
     def detect_image(self, image):        
@@ -49,8 +48,8 @@ if __name__ == "__main__":
     
     with open("./cls_test.txt","r") as f:
         lines = f.readlines()
-    top1 = evaluteTop1(classfication, lines)
+    top1, top5, Recall, Precision = evaluteTop1_5(classfication, lines, metrics_out_path)
     print("top-1 accuracy = %.2f%%" % (top1*100))
-    
-    top5 = evaluteTop5(classfication, lines)
     print("top-5 accuracy = %.2f%%" % (top5*100))
+    print("mean Recall = %.2f%%" % (np.mean(Recall)*100))
+    print("mean Precision = %.2f%%" % (np.mean(Precision)*100))
