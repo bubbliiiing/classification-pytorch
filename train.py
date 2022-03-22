@@ -133,6 +133,10 @@ if __name__ == "__main__":
     #------------------------------------------------------------------#
     save_period         = 1
     #------------------------------------------------------------------#
+    #   save_dir        权值与日志文件保存的文件夹
+    #------------------------------------------------------------------#
+    save_dir            = 'logs'
+    #------------------------------------------------------------------#
     #   num_workers     用于设置是否使用多线程读取数据
     #                   开启后会加快数据读取速度，但是会占用更多内存
     #                   内存较小的电脑可以设置为2或者0  
@@ -170,7 +174,7 @@ if __name__ == "__main__":
         model_dict.update(pretrained_dict)
         model.load_state_dict(model_dict)
 
-    loss_history = LossHistory("logs/", model, input_shape=input_shape)
+    loss_history    = LossHistory(save_dir, model, input_shape=input_shape)
     
     model_train = model.train()
     if Cuda:
@@ -266,7 +270,7 @@ if __name__ == "__main__":
                 #---------------------------------------#
                 lr_scheduler_func = get_lr_scheduler(lr_decay_type, Init_lr_fit, Min_lr_fit, UnFreeze_Epoch)
                 
-                model.freeze_backbone()
+                model.Unfreeze_backbone()
 
                 epoch_step      = num_train // batch_size
                 epoch_step_val  = num_val // batch_size
@@ -283,6 +287,6 @@ if __name__ == "__main__":
                 
             set_optimizer_lr(optimizer, lr_scheduler_func, epoch)
             
-            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Freeze_Epoch, Cuda, save_period)
+            fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Freeze_Epoch, Cuda, save_period, save_dir)
 
         loss_history.writer.close()
