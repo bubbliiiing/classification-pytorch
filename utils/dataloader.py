@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import torch
 import torch.utils.data as data
 from PIL import Image
 
@@ -148,13 +149,12 @@ class DataGenerator(data.Dataset):
         image = self.policy(image)
         return image
             
-
 def detection_collate(batch):
     images = []
     targets = []
     for image, y in batch:
         images.append(image)
         targets.append(y)
-    images = np.array(images)
-    targets = np.array(targets)
+    images  = torch.from_numpy(np.array(images)).type(torch.FloatTensor)
+    targets = torch.from_numpy(np.array(targets)).type(torch.FloatTensor).long()
     return images, targets

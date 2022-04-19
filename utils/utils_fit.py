@@ -24,8 +24,6 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
             break
         images, targets = batch
         with torch.no_grad():
-            images      = torch.from_numpy(images).type(torch.FloatTensor)
-            targets     = torch.from_numpy(targets).type(torch.FloatTensor).long()
             if cuda:
                 images  = images.cuda()
                 targets = targets.cuda()
@@ -85,8 +83,6 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
             break
         images, targets = batch
         with torch.no_grad():
-            images  = torch.from_numpy(images).type(torch.FloatTensor)
-            targets = torch.from_numpy(targets).type(torch.FloatTensor).long()
             if cuda:
                 images  = images.cuda()
                 targets = targets.cuda()
