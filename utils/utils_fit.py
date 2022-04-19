@@ -77,7 +77,7 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
         print('Finish Train')
         print('Start Validation')
         pbar = tqdm(total=epoch_step_val, desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3)
-        
+    model_train.eval()
     for iteration, batch in enumerate(gen_val):
         if iteration >= epoch_step_val:
             break
