@@ -5,21 +5,30 @@ import numpy as np
 import torch
 from PIL import Image
 
+from .utils_aug import resize, center_crop
+
 
 #---------------------------------------------------#
 #   对输入图像进行resize
 #---------------------------------------------------#
-def letterbox_image(image, size):
-    '''resize image with unchanged aspect ratio using padding'''
+def letterbox_image(image, size, letterbox_image):
+    w, h = size
     iw, ih = image.size
-    h, w = size
-    scale = min(w/iw, h/ih)
-    nw = int(iw*scale)
-    nh = int(ih*scale)
+    if letterbox_image:
+        '''resize image with unchanged aspect ratio using padding'''
+        scale = min(w/iw, h/ih)
+        nw = int(iw*scale)
+        nh = int(ih*scale)
 
-    image = image.resize((nw,nh), Image.BICUBIC)
-    new_image = Image.new('RGB', size, (128,128,128))
-    new_image.paste(image, ((w-nw)//2, (h-nh)//2))
+        image = image.resize((nw,nh), Image.BICUBIC)
+        new_image = Image.new('RGB', size, (128,128,128))
+        new_image.paste(image, ((w-nw)//2, (h-nh)//2))
+    else:
+        if h == w:
+            new_image = resize(image, h)
+        else:
+            new_image = resize(image, [h ,w])
+        new_image = center_crop(new_image, [h ,w])
     return new_image
 
 #---------------------------------------------------#
@@ -113,3 +122,17 @@ def set_optimizer_lr(optimizer, lr_scheduler_func, epoch):
     lr = lr_scheduler_func(epoch)
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+
+def download_weights(backbone, model_dir="./model_data"):
+    import os
+    from torch.hub import load_state_dict_from_url
+    
+    download_urls = {
+        'vgg'           : 'https://download.pytorch.org/models/vgg16-397923af.pth',
+        'mobilenetv2'   : 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth'
+    }
+    url = download_urls[backbone]
+    
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    load_state_dict_from_url(url, model_dir)

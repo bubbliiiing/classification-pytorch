@@ -1,18 +1,25 @@
-from random import shuffle
-
 import cv2
 import numpy as np
 import torch.utils.data as data
 from PIL import Image
 
 from .utils import cvtColor, preprocess_input
+from .utils_aug import CenterCrop, ImageNetPolicy, RandomResizedCrop, Resize
 
 
 class DataGenerator(data.Dataset):
-    def __init__(self, annotation_lines, input_shape, random=True):
+    def __init__(self, annotation_lines, input_shape, random=True, autoaugment_flag=True):
         self.annotation_lines   = annotation_lines
         self.input_shape        = input_shape
         self.random             = random
+        
+        self.autoaugment_flag   = autoaugment_flag
+        if self.autoaugment_flag:
+            self.resize_crop = RandomResizedCrop(input_shape)
+            self.policy      = ImageNetPolicy()
+            
+            self.resize      = Resize(input_shape[0] if input_shape[0] == input_shape[1] else input_shape)
+            self.center_crop = CenterCrop(input_shape)
 
     def __len__(self):
         return len(self.annotation_lines)
@@ -20,7 +27,14 @@ class DataGenerator(data.Dataset):
     def __getitem__(self, index):
         annotation_path = self.annotation_lines[index].split(';')[1].split()[0]
         image = Image.open(annotation_path)
-        image = self.get_random_data(image, self.input_shape, random=self.random)
+        #------------------------------#
+        #   读取图像并转换成RGB图像
+        #------------------------------#
+        image   = cvtColor(image)
+        if self.autoaugment_flag:
+            image = self.AutoAugment(image, random=self.random)
+        else:
+            image = self.get_random_data(image, self.input_shape, random=self.random)
         image = np.transpose(preprocess_input(np.array(image).astype(np.float32)), [2, 0, 1])
 
         y = int(self.annotation_lines[index].split(';')[0])
@@ -30,10 +44,6 @@ class DataGenerator(data.Dataset):
         return np.random.rand()*(b-a) + a
 
     def get_random_data(self, image, input_shape, jitter=.3, hue=.1, sat=1.5, val=1.5, random=True):
-        #------------------------------#
-        #   读取图像并转换成RGB图像
-        #------------------------------#
-        image   = cvtColor(image)
         #------------------------------#
         #   获得图像的高宽与目标高宽
         #------------------------------#
@@ -114,6 +124,30 @@ class DataGenerator(data.Dataset):
         image_data = cv2.merge((cv2.LUT(hue, lut_hue), cv2.LUT(sat, lut_sat), cv2.LUT(val, lut_val)))
         image_data = cv2.cvtColor(image_data, cv2.COLOR_HSV2RGB)
         return image_data
+    
+    def AutoAugment(self, image, random=True):
+        if not random:
+            image = self.resize(image)
+            image = self.center_crop(image)
+            return image
+
+        #------------------------------------------#
+        #   resize并且随即裁剪
+        #------------------------------------------#
+        image = self.resize_crop(image)
+        
+        #------------------------------------------#
+        #   翻转图像
+        #------------------------------------------#
+        flip = self.rand()<.5
+        if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
+        
+        #------------------------------------------#
+        #   随机增强
+        #------------------------------------------#
+        image = self.policy(image)
+        return image
+            
 
 def detection_collate(batch):
     images = []

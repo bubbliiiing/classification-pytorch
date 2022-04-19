@@ -27,7 +27,7 @@ class Eval_Classification(Classification):
         #---------------------------------------------------#
         #   对图片进行不失真的resize
         #---------------------------------------------------#
-        image_data  = letterbox_image(image, [self.input_shape[1], self.input_shape[0]])
+        image_data  = letterbox_image(image, [self.input_shape[1], self.input_shape[0]], self.letterbox_image)
         #---------------------------------------------------------#
         #   归一化+添加上batch_size维度+转置
         #---------------------------------------------------------#
