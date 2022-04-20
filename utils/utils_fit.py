@@ -1,4 +1,5 @@
 import os
+from threading import local
 
 import torch
 import torch.nn.functional as F
@@ -25,8 +26,8 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
         images, targets = batch
         with torch.no_grad():
             if cuda:
-                images  = images.cuda()
-                targets = targets.cuda()
+                images  = images.cuda(local_rank)
+                targets = targets.cuda(local_rank)
                 
         #----------------------#
         #   清零梯度
@@ -84,8 +85,8 @@ def fit_one_epoch(model_train, model, loss_history, optimizer, epoch, epoch_step
         images, targets = batch
         with torch.no_grad():
             if cuda:
-                images  = images.cuda()
-                targets = targets.cuda()
+                images  = images.cuda(local_rank)
+                targets = targets.cuda(local_rank)
 
             optimizer.zero_grad()
 
