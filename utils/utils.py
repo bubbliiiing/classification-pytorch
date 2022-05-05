@@ -8,6 +8,17 @@ from PIL import Image
 from .utils_aug import resize, center_crop
 
 
+#---------------------------------------------------------#
+#   将图像转换成RGB图像，防止灰度图在预测时报错。
+#   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
+#---------------------------------------------------------#
+def cvtColor(image):
+    if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
+        return image 
+    else:
+        image = image.convert('RGB')
+        return image 
+
 #---------------------------------------------------#
 #   对输入图像进行resize
 #---------------------------------------------------#
@@ -48,16 +59,14 @@ def preprocess_input(x):
     x -= 1.
     return x
 
-#---------------------------------------------------------#
-#   将图像转换成RGB图像，防止灰度图在预测时报错。
-#   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
-#---------------------------------------------------------#
-def cvtColor(image):
-    if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
-        return image 
-    else:
-        image = image.convert('RGB')
-        return image 
+def show_config(**kwargs):
+    print('Configurations:')
+    print('-' * 70)
+    print('|%25s | %40s|' % ('keys', 'values'))
+    print('-' * 70)
+    for key, value in kwargs.items():
+        print('|%25s | %40s|' % (str(key), str(value)))
+    print('-' * 70)
 
 #---------------------------------------------------#
 #   获得学习率
