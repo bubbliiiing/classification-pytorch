@@ -178,9 +178,9 @@ class VisionTransformer(nn.Module):
         self.head = nn.Linear(num_features, num_classes) if num_classes > 0 else nn.Identity()
 
     def forward_features(self, x):
-        x = self.patch_embed(x)
-        cls_token = self.cls_token.expand(x.shape[0], -1, -1) 
-        x = torch.cat((cls_token, x), dim=1)
+        x           = self.patch_embed(x)
+        cls_token   = self.cls_token.expand(x.shape[0], -1, -1) 
+        x           = torch.cat((cls_token, x), dim=1)
         
         cls_token_pe = self.pos_embed[:, 0:1, :]
         img_token_pe = self.pos_embed[:, 1: , :]
