@@ -1,5 +1,3 @@
-import math
-from collections import OrderedDict
 from functools import partial
 
 import numpy as np
@@ -219,7 +217,7 @@ class VisionTransformer(nn.Module):
                 module.requires_grad = True
 
     
-def vit(input_shape=[224, 224], pretrained=False, num_classes=1000):
+def vit_b_16(input_shape=[224, 224], pretrained=False, num_classes=1000):
     model = VisionTransformer(input_shape)
     if pretrained:
         model.load_state_dict(torch.load("model_data/vit-patch_16.pth"))

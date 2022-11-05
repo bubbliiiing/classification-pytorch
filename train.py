@@ -53,9 +53,13 @@ if __name__ == "__main__":
     input_shape     = [224, 224]
     #------------------------------------------------------#
     #   所用模型种类：
-    #   mobilenet、resnet50、vgg16、vit
+    #   mobilenetv2、
+    #   resnet18、resnet34、resnet50、resnet101、resnet152
+    #   vgg11、vgg13、vgg16、vgg11_bn、vgg13_bn、vgg16_bn、
+    #   vit_b_16、
+    #   swin_transformer_tiny、swin_transformer_small、swin_transformer_base
     #------------------------------------------------------#
-    backbone        = "mobilenet"
+    backbone        = "mobilenetv2"
     #----------------------------------------------------------------------------------------------------------------------------#
     #   是否使用主干网络的预训练权重，此处使用的是主干的权重，因此是在模型构建的时候进行加载的。
     #   如果设置了model_path，则主干的权值无需加载，pretrained的值无意义。
@@ -215,7 +219,7 @@ if __name__ == "__main__":
     #------------------------------------------------------#
     class_names, num_classes = get_classes(classes_path)
 
-    if backbone != "vit":
+    if backbone not in ['vit_b_16', 'swin_transformer_tiny', 'swin_transformer_small', 'swin_transformer_base']:
         model = get_model_from_name[backbone](num_classes = num_classes, pretrained = pretrained)
     else:
         model = get_model_from_name[backbone](input_shape = input_shape, num_classes = num_classes, pretrained = pretrained)
@@ -303,12 +307,13 @@ if __name__ == "__main__":
     np.random.shuffle(train_lines)
     np.random.seed(None)
     
-    show_config(
-        num_classes = num_classes, backbone = backbone, model_path = model_path, input_shape = input_shape, \
-        Init_Epoch = Init_Epoch, Freeze_Epoch = Freeze_Epoch, UnFreeze_Epoch = UnFreeze_Epoch, Freeze_batch_size = Freeze_batch_size, Unfreeze_batch_size = Unfreeze_batch_size, Freeze_Train = Freeze_Train, \
-        Init_lr = Init_lr, Min_lr = Min_lr, optimizer_type = optimizer_type, momentum = momentum, lr_decay_type = lr_decay_type, \
-        save_period = save_period, save_dir = save_dir, num_workers = num_workers, num_train = num_train, num_val = num_val
-    )
+    if local_rank == 0:
+        show_config(
+            num_classes = num_classes, backbone = backbone, model_path = model_path, input_shape = input_shape, \
+            Init_Epoch = Init_Epoch, Freeze_Epoch = Freeze_Epoch, UnFreeze_Epoch = UnFreeze_Epoch, Freeze_batch_size = Freeze_batch_size, Unfreeze_batch_size = Unfreeze_batch_size, Freeze_Train = Freeze_Train, \
+            Init_lr = Init_lr, Min_lr = Min_lr, optimizer_type = optimizer_type, momentum = momentum, lr_decay_type = lr_decay_type, \
+            save_period = save_period, save_dir = save_dir, num_workers = num_workers, num_train = num_train, num_val = num_val
+        )
     #---------------------------------------------------------#
     #   总训练世代指的是遍历全部数据的总次数
     #   总训练步长指的是梯度下降的总次数 
@@ -350,7 +355,7 @@ if __name__ == "__main__":
         nbs             = 64
         lr_limit_max    = 1e-3 if optimizer_type == 'adam' else 1e-1
         lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
-        if backbone == 'vit':
+        if backbone in ['vit_b_16', 'swin_transformer_tiny', 'swin_transformer_small', 'swin_transformer_base']:
             nbs             = 256
             lr_limit_max    = 1e-3 if optimizer_type == 'adam' else 1e-1
             lr_limit_min    = 1e-5 if optimizer_type == 'adam' else 5e-4
@@ -410,7 +415,7 @@ if __name__ == "__main__":
                 nbs             = 64
                 lr_limit_max    = 1e-3 if optimizer_type == 'adam' else 1e-1
                 lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
-                if backbone == 'vit':
+                if backbone in ['vit_b_16', 'swin_transformer_tiny', 'swin_transformer_small', 'swin_transformer_base']:
                     nbs             = 256
                     lr_limit_max    = 1e-3 if optimizer_type == 'adam' else 1e-1
                     lr_limit_min    = 1e-5 if optimizer_type == 'adam' else 5e-4

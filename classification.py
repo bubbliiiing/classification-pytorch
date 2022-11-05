@@ -27,9 +27,13 @@ class Classification(object):
         "input_shape"       : [224, 224],
         #--------------------------------------------------------------------#
         #   所用模型种类：
-        #   mobilenet、resnet50、vgg16、vit
+        #   mobilenetv2、
+        #   resnet18、resnet34、resnet50、resnet101、resnet152
+        #   vgg11、vgg13、vgg16、vgg11_bn、vgg13_bn、vgg16_bn、
+        #   vit_b_16、
+        #   swin_transformer_tiny、swin_transformer_small、swin_transformer_base
         #--------------------------------------------------------------------#
-        "backbone"          : 'mobilenet',
+        "backbone"          : 'mobilenetv2',
         #--------------------------------------------------------------------#
         #   该变量用于控制是否使用letterbox_image对输入图像进行不失真的resize
         #   否则对图像进行CenterCrop
@@ -72,7 +76,7 @@ class Classification(object):
         #---------------------------------------------------#
         #   载入模型与权值
         #---------------------------------------------------#
-        if self.backbone != "vit":
+        if self.backbone not in ['vit_b_16', 'swin_transformer_tiny', 'swin_transformer_small', 'swin_transformer_base']:
             self.model  = get_model_from_name[self.backbone](num_classes = self.num_classes, pretrained = False)
         else:
             self.model  = get_model_from_name[self.backbone](input_shape = self.input_shape, num_classes = self.num_classes, pretrained = False)

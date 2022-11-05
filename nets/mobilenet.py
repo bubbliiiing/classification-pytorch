@@ -2,11 +2,11 @@ from torch import nn
 from torchvision.models.utils import load_state_dict_from_url
 
 
-__all__ = ['MobileNetV2', 'mobilenet_v2']
+__all__ = ['MobileNetV2', 'mobilenetv2']
 
 
 model_urls = {
-    'mobilenet_v2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
+    'mobilenetv2': 'https://download.pytorch.org/models/mobilenet_v2-b0353104.pth',
 }
 
 
@@ -133,11 +133,11 @@ class MobileNetV2(nn.Module):
             param.requires_grad = True
 
 
-def mobilenet_v2(pretrained=False, progress=True, num_classes=1000):
+def mobilenetv2(pretrained=False, progress=True, num_classes=1000):
     model = MobileNetV2()
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['mobilenet_v2'], model_dir='./model_data',
-                                              progress=progress)
+        state_dict = load_state_dict_from_url(model_urls['mobilenetv2'], model_dir='./model_data',
+                                            progress=progress)
         model.load_state_dict(state_dict)
 
     if num_classes!=1000:
