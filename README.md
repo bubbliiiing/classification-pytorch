@@ -21,8 +21,8 @@ pytorch == 1.2.0
 
 ## 文件下载
 训练所需的预训练权重都可以在百度云下载。     
-链接: https://pan.baidu.com/s/1Jxeyeni45PvGDuPNdhAjCw    
-提取码: uyke    
+链接: https://pan.baidu.com/s/18Ze7YMvM5GpbTlekYO8bcA     
+提取码: 5wym   
 
 训练所用的示例猫狗数据集也可以在百度云下载。   
 链接: https://pan.baidu.com/s/1hYBNG0TnGIeWw1-SwkzqpA     
